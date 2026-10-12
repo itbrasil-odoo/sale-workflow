@@ -8,6 +8,10 @@ from odoo.addons.base.tests.common import BaseCommon
 
 
 class TestCommon(BaseCommon):
+    # The records are set up and changed as superuser, like before 20.0; the
+    # permissions are checked explicitly with ``with_user``.
+    _test_user_groups = None
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
