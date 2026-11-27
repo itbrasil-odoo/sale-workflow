@@ -108,3 +108,76 @@ class TestSalesTeamSecurity(TestCommon):
             bool(Partner.search(domain)),
             "User with team manager group should see contacts from teammates",
         )
+
+    def _team_manager(self):
+        manager = self.env["res.users"].create(
+            {
+                "login": "team_manager_2",
+                "name": "Team Manager 2",
+                "group_ids": [
+                    (4, self.env.ref("sales_team.group_sale_salesman").id),
+                    (4, self.env.ref("sales_team_security.group_sale_team_manager").id),
+                ],
+            }
+        )
+        self.env["crm.team.member"].create(
+            {"user_id": manager.id, "crm_team_id": self.team.id}
+        )
+        return manager
+
+    def _salesman(self, login, team):
+        salesman = self.env["res.users"].create(
+            {
+                "login": login,
+                "name": login,
+                "group_ids": [(4, self.env.ref("sales_team.group_sale_salesman").id)],
+            }
+        )
+        member = self.env["crm.team.member"].create(
+            {"user_id": salesman.id, "crm_team_id": team.id}
+        )
+        return salesman, member
+
+    def _sees(self, user, partner):
+        partner.message_unsubscribe(partner_ids=user.partner_id.ids)
+        return bool(
+            self.env["res.partner"].with_user(user).search([("id", "=", partner.id)])
+        )
+
+    def test_team_manager_does_not_see_other_teams(self):
+        manager = self._team_manager()
+        outsider, _member = self._salesman("salesman_outside", self.team2)
+        partner = self.env["res.partner"].create(
+            {"name": "Other team contact", "user_id": outsider.id}
+        )
+        self.assertFalse(self._sees(manager, partner))
+
+    def test_team_membership_change_updates_visibility(self):
+        manager = self._team_manager()
+        salesman, member = self._salesman("salesman_leaving", self.team)
+        partner = self.env["res.partner"].create(
+            {"name": "Leaving salesman contact", "user_id": salesman.id}
+        )
+        self.assertTrue(self._sees(manager, partner))
+        member.unlink()
+        self.assertFalse(self._sees(manager, partner))
+
+    def test_moving_contact_resyncs_followers(self):
+        company_x = self.env["res.partner"].create(
+            {"name": "Company X", "is_company": True}
+        )
+        company_y = self.env["res.partner"].create(
+            {"name": "Company Y", "is_company": True}
+        )
+        address = self.env["res.partner"].create(
+            {
+                "name": "Delivery",
+                "type": "delivery",
+                "parent_id": company_x.id,
+                "user_id": self.user2.id,
+            }
+        )
+        self.assertIn(self.user2.partner_id, company_x.message_partner_ids)
+        address.parent_id = company_y
+        self.assertIn(self.user2.partner_id, company_y.message_partner_ids)
+        self.assertNotIn(self.user2.partner_id, company_x.message_partner_ids)

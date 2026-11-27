@@ -8,7 +8,6 @@ def post_init_hook(env):
     partners = env["res.partner"].search(
         [
             ("parent_id", "=", False),
-            ("is_company", "=", True),
             "|",
             ("user_id", "!=", False),
             ("child_ids.user_id", "!=", False),

@@ -14,7 +14,7 @@ class ResPartner(models.Model):
     user_id = fields.Many2one(index=True)
 
     @api.model
-    @api.ormcache("operation", "self.env._access_context")
+    @api.ormcache("operation", "self.env._access_context", "self.env.su")
     def _access_domain(self, operation):
         """Inject extra domain for restricting partners when the user
         has the group 'Sales / User: Own Documents Only'.
@@ -84,7 +84,26 @@ class ResPartner(models.Model):
         if "user_id" in vals:
             for record in self.filtered("user_id"):
                 record._remove_key_followers(record.user_id.partner_id)
+        old_commercials = (
+            self.commercial_partner_id if "parent_id" in vals else self.browse()
+        )
         result = super().write(vals)
-        if "user_id" in vals or vals.get("type") in {"invoice", "delivery"}:
+        if (
+            "user_id" in vals
+            or "parent_id" in vals
+            or vals.get("type") in {"invoice", "delivery"}
+        ):
             self._add_followers_from_salesmen()
+        # A contact that left a company no longer brings its salesman there.
+        for old in old_commercials - self.commercial_partner_id:
+            old._remove_stale_salesmen_followers(self.user_id.partner_id)
         return result
+
+    def _remove_stale_salesmen_followers(self, salesmen_partners):
+        """Unsubscribe the given salesmen from the key contacts of this
+        commercial partner when no contact of it has them as salesman."""
+        self.ensure_one()
+        current = (self.child_ids + self).user_id.partner_id
+        stale = salesmen_partners - current
+        if stale:
+            self._remove_key_followers(stale)
