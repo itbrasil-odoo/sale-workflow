@@ -1,10 +1,10 @@
 This module adds a new "Sale" group called "User: Team Documents Only", that
 includes the proper permissions for showing only the information related
-to that user sale team (having assigned that team/channel or no team at
-all, independently from the assigned salesman):
+to that user sale team:
 
-- Contacts.
-- Quotations/Sales Orders (implemented in sales_team_security_sale)
+- Contacts whose salesman belongs to one of the user's sales teams.
+- Quotations/Sales Orders having one of the user's teams or no team at all,
+  independently from the assigned salesman (implemented in sales_team_security_sale)
 - Leads/Opportunities (implemented in sales_team_security_crm)
 
 It also handles the sync (auto-creation and remove) of followers in

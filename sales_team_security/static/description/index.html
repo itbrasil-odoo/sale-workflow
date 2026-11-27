@@ -377,11 +377,12 @@ ul.auto-toc {
 <p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Production/Stable" src="https://img.shields.io/badge/maturity-Production%2FStable-green.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/agpl-3.0-standalone.html"><img alt="License: AGPL-3" src="https://img.shields.io/badge/license-AGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OCA/sale-workflow/tree/20.0/sales_team_security"><img alt="OCA/sale-workflow" src="https://img.shields.io/badge/github-OCA%2Fsale--workflow-lightgray.png?logo=github" /></a> <a class="reference external image-reference" href="https://translation.odoo-community.org/projects/sale-workflow-20-0/sale-workflow-20-0-sales_team_security"><img alt="Translate me on Weblate" src="https://img.shields.io/badge/weblate-Translate%20me-F47D42.png" /></a> <a class="reference external image-reference" href="https://runboat.odoo-community.org/builds?repo=OCA/sale-workflow&amp;target_branch=20.0"><img alt="Try me on Runboat" src="https://img.shields.io/badge/runboat-Try%20me-875A7B.png" /></a></p>
 <p>This module adds a new “Sale” group called “User: Team Documents Only”,
 that includes the proper permissions for showing only the information
-related to that user sale team (having assigned that team/channel or no
-team at all, independently from the assigned salesman):</p>
+related to that user sale team:</p>
 <ul class="simple">
-<li>Contacts.</li>
-<li>Quotations/Sales Orders (implemented in sales_team_security_sale)</li>
+<li>Contacts whose salesman belongs to one of the user’s sales teams.</li>
+<li>Quotations/Sales Orders having one of the user’s teams or no team at
+all, independently from the assigned salesman (implemented in
+sales_team_security_sale)</li>
 <li>Leads/Opportunities (implemented in sales_team_security_crm)</li>
 </ul>
 <p>It also handles the sync (auto-creation and remove) of followers in
