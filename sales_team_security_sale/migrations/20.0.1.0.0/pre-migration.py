@@ -2,7 +2,11 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 
-XMLIDS = ("sale_order_team_rule", "sale_order_report_team_rule", "sale_order_line_team_rule")
+XMLIDS = (
+    "sale_order_team_rule",
+    "sale_order_report_team_rule",
+    "sale_order_line_team_rule",
+)
 
 
 def migrate(cr, version):
